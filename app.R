@@ -78,7 +78,7 @@ ui <- navbarPage('Temperature Comparison',
                                                selectInput('vsMon', 'Month', months, selected='January')
                               )
                             ),
-                            mainPanel(plotOutput('plotres'))
+                            mainPanel(plotOutput('plotres', width = "100%", height = "800px"))
                           )
                  )
   
@@ -171,7 +171,10 @@ server <- function(input, output, session){
         theme(strip.text = element_blank()) +  # remove subplot titles
         facet_wrap(~land_cover) +
         scale_x_discrete(labels = c('LST','Daymet')) + 
-        ggtitle(paste0('2019 ',input$vsMon,' Micro- vs. Macroclimate'))
+        labs(x='Land Cover Type', y='Temperature (Degrees Celsius)') +
+        ggtitle(paste0('LST vs. Daymet in New York City, ', input$vsMon,', 2019'))
+      
+    
     } else if(input$which2plot=='LST-Daymet Offset'){
       month <- match(input$vsMon, month.name)
       
@@ -179,7 +182,7 @@ server <- function(input, output, session){
       names(data2plot) <- c('offset','land_cover')
       data2plot <- melt(data2plot)
       
-      legend_labels <- c('1: Water', '2: Developed', '3: Barren', '4: Forest', '5: Shrub', '6: Grassland', '7: Pasture', '8: Wetlands')
+      legend_labels <- c('1: Water', '2: Developed', '3: Barren', '4: Forest', '5: Shrub', '7: Grassland', '8: Pasture', '9: Wetlands')
       ggplot(data2plot, aes(x=land_cover, y=value, fill=land_cover)) +
         geom_boxplot() +
         scale_fill_manual(values=c('blue','red','gray','darkgreen','brown','green','yellow','skyblue'),
@@ -187,25 +190,36 @@ server <- function(input, output, session){
         guides(fill=guide_legend(title=NULL)) +  # remove legend title
         labs(x='Land Cover Type', y='Temperature Offset (Degrees Celsius)') +
         ggtitle(paste0('LST-Daymet Offset by Land Cover Type in NYC, ', input$vsMon, ', 2019'))
+      
+      
     } else{  # LST in each polygon
       polyID <- input$tileID
       month <- match(input$tileMon, month.name)
       
       data2plot <- readRDS(paste0('data/by_poly',month,'.rds')) %>%
-        filter(ID==polyID)
-      ggplot(data2plot, aes(x=land_cover.1, y=micro,group=land_cover.1)) +
-        geom_boxplot() +
-        scale_x_continuous(breaks = seq(min(data2plot$land_cover.1), max(data2plot$land_cover.1), 1)) +
-        labs(x='Land Cover Type', y='LST (Degrees Celsius)') +
-        ggtitle(paste0('Grid ',polyID,' LST by Land Cover Type, Month ', month, 
-                       '\nPolygon Temperature by Daymet: ', round(data2plot$macro.mean[1],1), ' degrees Celsius'))  # set title
+        filter(ID==polyID) %>%
+        mutate(land_cover =case_when(
+          land_cover.1 == 1 ~ 'Water',
+          land_cover.1 == 2 ~ 'Developed',
+          land_cover.1 == 3 ~ 'Barren',
+          land_cover.1 == 4 ~ 'Forest',
+          land_cover.1 == 5 ~ 'Shrub',
+          land_cover.1 == 7 ~ 'Grassland',
+          land_cover.1 == 8 ~ 'Pasture',
+          land_cover.1 == 9 ~ 'Wetlands',
+        ))
       
+      ggplot(data2plot, aes(x=land_cover, y=micro,group=land_cover.1)) +
+        geom_boxplot() +
+        # scale_x_continuous(breaks = seq(min(data2plot$land_cover), max(data2plot$land_cover.1), 1)) +
+        labs(x='Land Cover Type', y='LST (Degrees Celsius)') +
+        ggtitle(paste0('LST in New York City Polygon ',input$tileID, ', ',input$tileMon,', 2019',
+                       '\nPolygon Daymet Temperature: ', round(data2plot$macro.mean[1],1), ' degrees Celsius'))
     }
   })
   
 }
 
 
-# ------------------------------------------------ Run App ------------------------------------------------ #
-shinyApp(ui=ui, server=server)
+shinyApp(ui=ui, server=server)  # Run app
 
