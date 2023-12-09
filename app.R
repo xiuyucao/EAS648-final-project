@@ -44,41 +44,44 @@ ui <- navbarPage('Temperature Comparison',
                           sidebarLayout(
                             sidebarPanel(
                               helpText('Preprocessing includes reclassification, interpolation, reprojection, cropping, masking, and Voronoi polygon generation.',
-                                       HTML('<br><br><span style="color: red; font-weight: bold;">Rendering raster data takes some time. Please be Patient.</span>')),
+                                       HTML('<br><br><span style="color: orange; font-weight: bold;">Rendering raster data takes some time. Please be Patient.</span>')),
                               radioButtons('dataLevel', 'Data Level', c('Raw', 'Preprocessed'), selected='Raw'),
                               
                               conditionalPanel(condition = "input.dataLevel == 'Raw'",
                                                selectInput('varRaw', 'Variable', c('Daymet', 'Land Cover Type', 'Land Surface Temperature (LST)'), selected='Daymet'),
                                                conditionalPanel(condition= "input.varRaw != 'Land Cover Type'",
                                                                 selectInput('month', 'Month', months, selected='January'),
-                                                                helpText('Enter Month from 1 to 11 (Data of December in NYC were absent in 2019).'))
+                                                                helpText('(Data of December in NYC were absent in 2019.)'))
                               ),
                               conditionalPanel(condition = "input.dataLevel == 'Preprocessed'",
                                                selectInput('varPro', 'Variable', c('Daymet (Polygon)', 'Daymet (Raster)', 'Land Cover Type'), selected='Dayemet (Polygon)'),
                                                conditionalPanel(condition="input.varPro != 'Land Cover Type'",
                                                                 selectInput('month1', 'Month', months, selected='January'),
-                                                                helpText('Enter Month from 1 to 11 (Data of December in NYC were absent in 2019).')))
+                                                                helpText('(Data of December in NYC were absent in 2019.)')))
                             ),
-                            mainPanel(leafletOutput('dataMap', width = "100%", height = "800px"))
+                            mainPanel(leafletOutput('dataMap', width = "100%", height = "700px"))
                           )
                           ),
                  
                  tabPanel('Statistical Analysis',
                           sidebarLayout(
                             sidebarPanel(
+                              helpText('Choose the analysis you want to plot.',
+                                       HTML('<br><br><span style="color: orange; font-weight: bold;">Plotting may take some time. Please be Patient.</span>')),
                               radioButtons('which2plot', 'Result to Plot', 
                                            c('LST vs. Daymet', 'LST-Daymet Offset', 'LST in each Daymet Polygon'), selected='LST-Daymet Offset'),
                               conditionalPanel(condition="input.which2plot=='LST in each Daymet Polygon'",
-                                               helpText('See Daymet Polygon ID in Data Explorer'),
+                                               helpText('This analysis looks into each specific polygon of the same Daymet temperature, aiming at a deeper understanding in the impact of land cover type on fine-resolution temperature (LST here).',
+                                                        HTML('<br><span style="color: green">See Daymet Polygon ID at Data Explorer --> Preprocessed --> Daymet (Polygon).</span>')),
                                                numericInput('tileID', 'Polygon ID', min=1, max=900, value=856),
                                                selectInput('tileMon', 'Month', months, selected='January')
                               ),
                               conditionalPanel(condition="input.which2plot!='LST in each Daymet Polygon'",
-                                               helpText('This is help text'),
+                                               helpText('This analysis take into consideration the whole New York City, aiming at identifying distinctions between Daymet and Landsat Land Surface Temperature (LST) data.'),
                                                selectInput('vsMon', 'Month', months, selected='January')
                               )
                             ),
-                            mainPanel(plotOutput('plotres', width = "100%", height = "800px"))
+                            mainPanel(plotOutput('plotres', width = "100%", height = "700px"))
                           )
                  )
   

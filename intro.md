@@ -4,9 +4,9 @@ At present, the primary methods for acquiring temperature data involve **ground 
 
 ## Data Used in this App
 * Daymet Temperature Data
-    * Time Resolution: daily or monthly
+    * Time Resolution: daily (downloaded monthly average in this app)
     * Space Resolution: 1km
-    * Temperature Type: air temperature
+    * Temperature Type: air temperature (2 meters above ground)
     * New York City, Jan-Nov, 2019
     * Data Source: [Daymet](https://daymet.ornl.gov)<br>
 <br>
