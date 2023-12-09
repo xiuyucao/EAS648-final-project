@@ -16,7 +16,7 @@ At present, the primary methods for acquiring temperature data involve **ground 
     * Space Resolution: 30m
     * Temperature Type: surface temperature
     * New York City, Jan-Nov, 2019
-    * Data Source: [Google Earch Engine](https://earthengine.google.com)<br>
+    * Data Source: [Landsat](https://landsat.gsfc.nasa.gov)<br>
 <br>
 
 * Land Cover Type
